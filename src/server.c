@@ -10,8 +10,12 @@
 
 #define BUFSZ 1024
 
-    int main(int argc, char **argv)
+
+int main(int argc, char **argv)
 {
+    //Inicializa os dois racks sem nenhum switch ativado
+    int rack1[4] = {0, 0, 0, 0};
+    int rack2[4] = {0, 0, 0, 0};
 
     struct sockaddr_storage storage;
     if (ServerSockInit(argv[1], argv[2], &storage) != 0)
@@ -26,12 +30,18 @@
         logExit("Error at socket creation");
     }
 
+    int enable = 1;
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0)
+    {
+        logExit("Setsockopt");
+    }
+
     struct sockaddr *addr = (struct sockaddr *)(&storage);
     if (bind(s, addr, sizeof(storage)) != 0)
     {
         logExit("Error at bind");
     }
-    if (listen(s, 10) != 0)
+    if (listen(s, 1) != 0)
     {
         logExit("Error at listen");
     }
@@ -53,19 +63,18 @@
         char caddrStr[BUFSIZ];
         addrToStr(caddr, caddrStr, BUFSIZ);
         printf("Connection from %s\n", caddrStr);
-
         char buf[BUFSIZ];
-        memset(buf, 0, BUFSIZ);
-        size_t count = recv(csock, buf, BUFSIZ - 1, 0);
-        printf("[msg] %s, %d bytes: %s\n", caddrStr, (int)count, buf);
-
-        sprintf(buf, "remote endpoint: %.1000s\n", caddrStr);
-        count = send(csock, buf, strlen(buf) + 1, 0);
-        if (count != strlen(buf) + 1)
-        {
-            logExit("Error at send message\n");
+        while(1){
+            memset(buf, 0, BUFSIZ);
+            size_t count = read(csock, buf, BUFSIZ - 1);
+            char* res = handleMessage(buf, rack1, rack2);
+            count = send(csock, buf, strlen(buf) + 1, 0);
+            if (count != strlen(buf) + 1)
+            {
+                logExit("Error at send message\n");
+            }
         }
-        close(csock);
+        
     }
     exit(EXIT_SUCCESS);
 }

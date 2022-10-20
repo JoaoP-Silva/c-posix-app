@@ -34,29 +34,23 @@ int main(int argc, char **argv)
     char addrStr[BUFSIZ];
     addrToStr(addr, addrStr, BUFSIZ);
     printf("Connected to %s\n", addrStr);
-
     char buf[BUFSIZ];
-    memset(buf, 0, BUFSIZ);
-    printf("mensagem > ");
-    fgets(buf, BUFSIZ, stdin);
-    size_t count = send(s, buf, strlen(buf) + 1, 0);
-    if (count != strlen(buf) + 1)
-    {
-        logExit("Error at send message\n");
-    }
-
-    unsigned total = 0;
-    while (1)
-    {
-        count = recv(s, buf + total, BUFSIZ - total, 0);
-        if (count == 0)
+    while(1){
+        memset(buf, 0, BUFSIZ);
+        printf("mensagem > ");
+        fgets(buf, BUFSIZ, stdin);
+        size_t count = send(s, buf, strlen(buf) + 1, 0);
+        if (count != strlen(buf) + 1)
         {
-            break;
+            logExit("Error at send message\n");
         }
+
+        unsigned total = 0;
+        count = read(s, buf + total, BUFSIZ - total);
         total += count;
+        printf("recieved %d bytes\n", total);
+        puts(buf);
     }
-    printf("recieved %d bytes\n", total);
-    puts(buf);
     close(s);
     exit(EXIT_SUCCESS);
 }
