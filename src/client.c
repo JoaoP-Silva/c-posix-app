@@ -37,20 +37,27 @@ int main(int argc, char **argv)
     char buf[BUFSIZ];
     while(1){
         memset(buf, 0, BUFSIZ);
-        printf("mensagem > ");
         fgets(buf, BUFSIZ, stdin);
+        char closebuf[BUFSIZ];
+        memset(closebuf, 0, BUFSIZ);
+        strcpy(closebuf, buf);
         size_t count = send(s, buf, strlen(buf) + 1, 0);
         if (count != strlen(buf) + 1)
         {
             logExit("Error at send message\n");
         }
-
+        if(strcmp(closebuf, "exit") == 0){
+            close(s);
+            exit(EXIT_SUCCESS);
+        }
         unsigned total = 0;
         count = read(s, buf + total, BUFSIZ - total);
         total += count;
-        printf("recieved %d bytes\n", total);
+        if(strcmp(buf, "close") == 0){
+            close(s);
+            exit(EXIT_FAILURE);
+        }
         puts(buf);
     }
-    close(s);
-    exit(EXIT_SUCCESS);
+    
 }

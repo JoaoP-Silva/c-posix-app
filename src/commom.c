@@ -131,16 +131,19 @@ char* handleMessage(char* data, int* rack1, int* rack2){
         //Caso o comando seja add:
         if(strcmp(sub, "add")== 0){
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             if(strcmp(sub, "sw") != 0){return NULL;}
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             while((strcmp(sub, "in"))!= 0 && strlen(sub) == 2 && cont_param < 2){
                 int i = atoi(sub);
                 if(i>4 || i<1){return "error switch type unknown\n";}
                 to_add[cont_param] = i;
                 cont_param++; sub = strtok(NULL, " ");
+                if(sub == NULL){return NULL;}
             }
             sub = strtok(NULL, " ");
-            if(strlen(sub) != 2){return NULL;}
+            if(sub == NULL){return NULL;}
             rack = atoi(sub);
             if(rack > 2 || rack < 1){return NULL;}
             for(int i=0 ; i<cont_param; i++){
@@ -174,8 +177,6 @@ char* handleMessage(char* data, int* rack1, int* rack2){
                     }
                 }
             }
-            char buf[100];
-            memset(buf, 0, 100);
             if(cont_param == 2){
                 snprintf(buf, sizeof(buf), "switch 0%d 0%d installed in 0%d", to_add[0], to_add[1], rack);
             }
@@ -189,16 +190,19 @@ char* handleMessage(char* data, int* rack1, int* rack2){
         //Caso o comando seja rm:
         else if(strcmp(sub, "rm") == 0){
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             if(strcmp(sub, "sw") != 0){return NULL;}
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             while((strcmp(sub, "in"))!= 0 && strlen(sub) == 2 && cont_param < 2){
                 int i = atoi(sub);
                 if(i>4 || i<1){return "error switch type unknown\n";}
                 to_add[cont_param] = i;
                 cont_param++; sub = strtok(NULL, " ");
+                if(sub == NULL){return NULL;}
             }
             sub = strtok(NULL, " ");
-            if(strlen(sub) != 2){return NULL;}
+            if(sub == NULL){return NULL;}
             rack = atoi(sub);
             if(rack > 2 || rack < 1){return NULL;}
             for(int i=0; i<cont_param; i++){
@@ -230,16 +234,19 @@ char* handleMessage(char* data, int* rack1, int* rack2){
         }else if(strcmp(sub, "get") == 0){
             //caso o comando seja get:
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             if(strcmp(sub, "sw") != 0){return NULL;}
             sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
             while((strcmp(sub, "in"))!= 0 && strlen(sub) == 2 && cont_param < 2){
                 int i = atoi(sub);
                 if(i>4 || i<1){return "error switch type unknown\n";}
                 to_add[cont_param] = i;
                 cont_param++; sub = strtok(NULL, " ");
+                if(sub == NULL){return NULL;}
             }
             sub = strtok(NULL, " ");
-            if(strlen(sub) != 2){return NULL;}
+            if(sub == NULL){return NULL;}
             rack = atoi(sub);
             if(rack > 2 || rack < 1){return NULL;}
             for(int i=0; i<cont_param; i++){
@@ -265,45 +272,44 @@ char* handleMessage(char* data, int* rack1, int* rack2){
             return res;
 
         }else if(strcmp(sub, "ls") == 0){
-        //caso o comando seja list:
-        sub = strtok(NULL, " ");
-           if(strlen(sub) == 2){
-                rack = atoi(sub);
-                int cont = 0;
-                if(rack == 1){
-                    for(int i =0; i<4; i++){
-                        if(rack1[i]){cont++;}
-                    }
-                }else if(rack ==2){
-                    for(int i =0; i<4; i++){
-                        if(rack2[i]){cont++;}
-                    }
+            //caso o comando seja list:
+            sub = strtok(NULL, " ");
+            if(sub == NULL){return NULL;}
+            rack = atoi(sub);
+            int cont = 0;
+            if(rack == 1){
+                for(int i =0; i<4; i++){
+                    if(rack1[i]){cont++;}
                 }
-                else{return "invalid rack";}
-                if(cont == 0){return "empty rack";}
-                int* list = (int*)malloc(cont*sizeof(int));
-                cont = 0;
-                if(rack == 1){
-                    for(int i =0; i<4; i++){
-                        if(rack1[i]){
-                            list[cont] = i + 1;
-                            cont++;
-                        }
-                    }
-                }else{
-                    for(int i =0; i<4; i++){
-                        if(rack2[i]){
-                            list[cont] = i + 1;
-                            cont++;
-                        }
-                    }
+            }else if(rack ==2){
+                for(int i =0; i<4; i++){
+                    if(rack2[i]){cont++;}
                 }
-                for(int i = 0; i < cont; i++){
-                    snprintf(buf, sizeof(buf), "0%d ", list[i]);
-                    strcat(res, buf);
-                }
-                return res;
             }
+            else{return "invalid rack";}
+            if(cont == 0){return "empty rack";}
+            int* list = (int*)malloc(cont*sizeof(int));
+            cont = 0;
+            if(rack == 1){
+                for(int i =0; i<4; i++){
+                    if(rack1[i]){
+                        list[cont] = i + 1;
+                        cont++;
+                    }
+                }
+            }else{
+                for(int i =0; i<4; i++){
+                    if(rack2[i]){
+                        list[cont] = i + 1;
+                        cont++;
+                    }
+                }
+            }
+            for(int i = 0; i < cont; i++){
+                snprintf(buf, sizeof(buf), "0%d ", list[i]);
+                strcat(res, buf);
+            }
+            return res;
         }else{
             return NULL;
         }

@@ -68,6 +68,14 @@ int main(int argc, char **argv)
             memset(buf, 0, BUFSIZ);
             size_t count = read(csock, buf, BUFSIZ - 1);
             char* res = handleMessage(buf, rack1, rack2);
+            if(res == NULL){
+                strcpy(buf, "close");
+                count = send(csock, buf, strlen(buf) + 1, 0);
+                close(csock);
+                return 0;
+            }
+            memset(buf, 0, BUFSIZ);
+            strcpy(buf, res);
             count = send(csock, buf, strlen(buf) + 1, 0);
             if (count != strlen(buf) + 1)
             {
